@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Prędkości Pisania</title>
+  <style>
+    #panel{
+        text-align: right;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    #text-container {
+      margin: 20px;
+    }
+    #user-input {
+      width: 80%;
+      padding: 10px;
+      font-size: 16px;
+    }
+    #result {
+      margin-top: 20px;
+    }
+    #elapsed-time {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+    <h1>Test Prędkości Pisania</h1>
+    <div id="panel">
+        <button> Logowanie </button>
+        <button> Lekcje </button>
+        <button> Statystyki </button>
+    </div>
+
+<div id="text-container">
+  <p id="original-text">asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd</p> 
+  <textarea id="user-input" placeholder="Zacznij pisać tutaj..."></textarea>
+</div>
+
+<div id="result">
+  <p>Prędkość pisania: <span id="typing-speed">0</span> Znaków na minutę</p>
+  <p>Liczba błędów: <span id="error-count">0</span></p>
+</div>
+
+<div id="elapsed-time">
+  <p>Upłynięty czas: <span id="elapsed-seconds">0</span> s <span id="elapsed-milliseconds">0</span> ms</p>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    //var originalText = document.getElementById("original-text").textContent.trim().split(" ");
+    var userInput = document.getElementById("user-input");
+    var typingSpeedDisplay = document.getElementById("typing-speed");
+    var errorCountDisplay = document.getElementById("error-count");
+    var elapsedSecondsDisplay = document.getElementById("elapsed-seconds");
+    var elapsedMillisecondsDisplay = document.getElementById("elapsed-milliseconds");
+    var startedTyping = false;
+
+    var startTime;
+    var lastUpdateTime;
+    var totalTypedCharacters = 0;
+
+    userInput.addEventListener("input", function() {       // START TIMERA PO WPROWADZENIU PIERWSZEGO ZNAKU
+      if (!startedTyping) {
+        startedTyping = true;
+        startTimer();
+        
+      }
+    });
+
+    function funkcjaWtle() {                               // FUNKCJA SETUP (DZIAŁA CO 0.5s)
+    // Tutaj umieść kod, który ma być wykonany w tle
+    //console.log("Funkcja wykonuje się w tle");
+    calculateTypingSpeed();
+  }
+
+  // Ustaw interwał czasowy na 100 milisekund (0.5 sekundy)
+  setInterval(funkcjaWtle, 500);
+
+
+    function startTimer() {
+      startTime = new Date().getTime();
+      lastUpdateTime = startTime;
+      updateElapsedTime();
+    }
+
+    function updateElapsedTime() {
+      var currentTime = new Date().getTime();
+      var elapsedTime = currentTime - startTime;
+      var elapsedSeconds = Math.floor(elapsedTime / 1000);
+      var elapsedMilliseconds = elapsedTime % 1000;
+      elapsedSecondsDisplay.textContent = elapsedSeconds;
+      elapsedMillisecondsDisplay.textContent = elapsedMilliseconds;
+      requestAnimationFrame(updateElapsedTime);
+    }
+
+    function calculateTypingSpeed() {      // GŁÓWNA FUNKCJA
+      var userCharacters = userInput.value.trim().length;
+      var currentTime = new Date().getTime();
+      var elapsedTime = currentTime - startTime;
+      var originalText = document.getElementById("original-text").textContent.trim();
+
+      var elapsedTimeInMinutes = elapsedTime / (60 * 1000);
+      var charactersPerMinute = Math.round(userCharacters / elapsedTimeInMinutes);
+      typingSpeedDisplay.textContent = charactersPerMinute;
+
+      var errorCount = calculateErrorCount(originalText, userInput.value);
+      errorCountDisplay.textContent = errorCount;
+      //                                                                      TUTAJ POBIERZ STATYSTYKI DO BAZY
+      // errorCount          - liczba błędów
+      // charactersPerMinute - prędkość
+
+    }
+
+    function calculateErrorCount(original, user) {
+      var errors = 0;
+      var minLength = Math.min(original.length, user.length);
+
+      for (var i = 0; i < minLength; i++) {
+        if (original[i] != user[i]) {
+          errors++;
+        }
+      }
+
+      return errors;
+    }
+
+    function updateValues() {
+      var currentTime = new Date().getTime();
+      var elapsedTime = currentTime - lastUpdateTime;
+      lastUpdateTime = currentTime;
+      totalTypedCharacters += userInput.value.length;
+
+      var elapsedTimeInMinutes = elapsedTime / (60 * 1000);
+      // var charactersPerMinute = Math.round(totalTypedCharacters / elapsedTime / (60 * 1000));
+      // typingSpeedDisplay.textContent = elapsedTime / (60 * 1000);
+    }
+  });
+</script>
+
+</body>
+</html>
